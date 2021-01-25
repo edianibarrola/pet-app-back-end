@@ -102,6 +102,10 @@ def logout_user():
         "msg": "The user has logged out.",
     }
     return jsonify(response_body), 200
+
+
+#For the posts
+
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
