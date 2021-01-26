@@ -9,6 +9,13 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from models import db, User
+from flask_jwt_simple import (
+    JWTManager, jwt_required, create_jwt, get_jwt_identity
+)
+from flask_jwt_extended import (
+    JWTManager, jwt_required, create_access_token,
+    get_jwt_identity
+)
 #from models import Person
 
 app = Flask(__name__)
@@ -19,6 +26,9 @@ MIGRATE = Migrate(app, db)
 db.init_app(app)
 CORS(app)
 setup_admin(app)
+
+app.config['JWT_SECRET_KEY'] = 'super-secret'  # Change this!
+jwt = JWTManager(app)
 
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
@@ -78,19 +88,25 @@ def update_user(id):
     }
     return jsonify(response_body), 200
 
-@app.route('/login', methods=['PUT']) #Sets the is_active to true when the user logs in
+@app.route('/login', methods=['POST']) #Sets the is_active to true when the user logs in
 def login_user():
-    body = request.get_json()
-    to_be_updated = User.query.filter_by(email=body['email']).first()
-    if to_be_updated is None:
-        raise APIException('User does not exist', status_code=404)
-    if 'email' in body:
-        to_be_updated.is_active = True
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+    params = request.get_json()
+    email = params.get('email', None)
+    password = params.get('password', None)
+    if not email:
+        return jsonify({"msg": "Missing email parameter"}), 400
+    if not password:
+        return jsonify({"msg": "Missing password parameter"}), 400
+    user = User.query.filter_by(email=email, password=password).first()
+    if user is None:
+        return jsonify({"msg": "Bad email or password"}), 401
+    # Identity can be any data that is json serializable
+    access_token = create_access_token(identity=email)
+    user.is_active = True
     db.session.commit()
-    response_body = {
-        "msg": "The user has logged in.",
-    }
-    return jsonify(response_body), 200
+    return jsonify(access_token=access_token), 200
 
 @app.route('/logout', methods=['PUT']) #Sets the is_active to false when the user logs out
 def logout_user():
