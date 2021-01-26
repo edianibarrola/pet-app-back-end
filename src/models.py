@@ -65,7 +65,6 @@ class Posts(db.Model):
             "id": self.id,
             "name": self.name,
             "pet_type": self.pet_type,
-            "sex": self.sex,
             "color": self.color,
             "eye_color": self.eye_color,
             "last_seen": self.last_seen,
