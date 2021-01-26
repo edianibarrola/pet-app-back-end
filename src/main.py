@@ -45,8 +45,8 @@ def sign_up():
     info = User(username=body['username'], email=body['email'], password=body['password'], is_active=False) 
     db.session.add(info) 
     db.session.commit() 
-    updated_user = User.query.filter_by(email=body['email']) 
-    updated_user = list(map(lambda x: x.serialize(), updated_user))
+    updated_user = User.query.filter_by(email=body['email']).first() 
+    updated_user = updated_user.serialize()
     return jsonify(updated_user), 200 
 
 @app.route('/user/<int:id>', methods=['DELETE']) #Deletes a user at the specific ID
@@ -88,6 +88,13 @@ def update_user(id):
     }
     return jsonify(response_body), 200
 
+@app.route('/user/<int:id>', methods=['GET']) #Gets the user's information at their ID
+def get_one_user(id):
+    grab_info = User.query.get(id)
+    grab_info = grab_info.serialize()
+    return jsonify(grab_info), 200
+
+
 @app.route('/login', methods=['POST']) #Sets the is_active to true when the user logs in
 def login_user():
     if not request.is_json:
@@ -106,7 +113,7 @@ def login_user():
     access_token = create_access_token(identity=email)
     user.is_active = True
     db.session.commit()
-    return jsonify(access_token=access_token), 200
+    return jsonify(access_token=access_token, id=user.id), 200
 
 @app.route('/logout', methods=['PUT']) #Sets the is_active to false when the user logs out
 def logout_user():
