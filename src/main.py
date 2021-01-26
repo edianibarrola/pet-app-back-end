@@ -145,6 +145,36 @@ def add_pet():
     response = list(map(lambda x: x.serialize(), response))
     
     return jsonify(response), 200 
+
+
+@app.route('/pet/<int:id>', methods=['GET']) #Gets the pet information at their ID
+def get_one_pet(id):
+    grab_info = Pet.query.get(id)
+    grab_info = grab_info.serialize()
+    return jsonify(grab_info), 200
+
+@app.route('/pet/<int:id>', methods=['PUT']) #Updates the pet information at their ID
+def update_pet(id):
+    body = request.get_json()
+    to_be_updated = Pet.query.get(id)
+    if to_be_updated is None:
+        raise APIException('Pet does not exist', status_code=404)
+    if 'name' in body:
+        to_be_updated.name = body['name']
+        to_be_updated.pet_type = body['pet_type']
+        to_be_updated.sex = body['sex']
+        to_be_updated.color = body['color']
+        to_be_updated.dob = body['dob']
+        to_be_updated.habitat_id = body['habitat_id']
+        to_be_updated.note = body['note']
+    db.session.commit()
+    to_be_updated = Pet.query.get(id)
+    to_be_updated = to_be_updated.serialize()
+    response_body = {
+        "msg": "The pet has been updated.",
+        "update": to_be_updated
+    }
+    return jsonify(response_body), 200
 #For the posts
 
 # this only runs if `$ python src/main.py` is executed
