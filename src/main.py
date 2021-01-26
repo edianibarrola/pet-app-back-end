@@ -25,6 +25,9 @@ setup_admin(app)
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
+@app.route('/')
+def sitemap():
+    return generate_sitemap(app)
 
 @app.route('/signup', methods=['POST']) #Adds a user to the list when the user signs up
 def sign_up():
