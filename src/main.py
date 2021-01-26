@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, Pet
 #from models import Person
 
 app = Flask(__name__)
@@ -107,6 +107,25 @@ def logout_user():
     return jsonify(response_body), 200
 
 
+@app.route('/pet', methods=['GET']) #Returns all of the pets in a list
+def get_all_pets():
+    all_pets = Pet.query.all()
+    all_pets = list(map(lambda x: x.serialize(), all_pets))
+    response_body = {
+        "Pets": all_pets
+    }
+    return jsonify(all_pets), 200
+
+@app.route('/pet', methods=['POST']) #Adds a new pet to the list 
+def add_pet():
+    pet_info = request.get_json() 
+    new_pet= Pet(name=pet_info['name'], pet_type= pet_info['pet_type'], sex=pet_info['sex'], color=pet_info['color'], dob=pet_info['dob'], habitat_id=pet_info['habitat_id'], note=pet_info['note']) 
+    db.session.add(new_pet) 
+    db.session.commit() 
+    response = Pet.query.all()
+    response = list(map(lambda x: x.serialize(), response))
+    
+    return jsonify(response), 200 
 #For the posts
 
 # this only runs if `$ python src/main.py` is executed
