@@ -46,6 +46,32 @@ class Pet(db.Model):
             "note": self.note,
             # "user_id": self.user_id
             }
+
+class Habitat(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), unique=True, nullable=False)
+    pet_in_habitat_id = db.Column(db.String(80), unique=False, nullable=True)
+    info = db.Column(db.String(250), unique=False, nullable=True)
+    habitat_location = db.Column(db.String(100), unique=False, nullable=True)
+    habitat_supplies = db.Column(db.String(100), unique=False, nullable=True)
+    habitat_equipment = db.Column(db.String(100), unique=False, nullable=True)
+    
+    
+    
+    def __repr__(self):
+        return '<Habitat %r>' % self.name
+    
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "pet_in_habitat_id": self.pet_in_habitat_id,
+            "info": self.info,
+            "habitat_location": self.habitat_location,
+            "habitat_supplies": self.habitat_supplies,
+            "habitat_equipment": self.habitat_equipment,
+            
+            }
     
 class Posts(db.Model):
     id = db.Column(db.Integer, primary_key=True)

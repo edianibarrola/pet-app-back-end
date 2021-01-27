@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, Pet, Posts
+from models import db, User, Pet, Posts, Habitat
 
 from flask_jwt_simple import (JWTManager, jwt_required, create_jwt, get_jwt_identity)
 from flask_jwt_extended import (JWTManager, jwt_required, create_access_token,get_jwt_identity)
@@ -178,6 +178,72 @@ def update_pet(id):
     }
     return jsonify(response_body), 200
 
+@app.route('/pet/<int:id>', methods=['DELETE']) #Deletes a pet at the specific ID
+def delete_pet(id):
+    body = request.get_json()
+    to_be_deleted = Pet.query.get(id)
+    db.session.delete(to_be_deleted)
+    db.session.commit()
+    response_body = {
+        "msg": "The pet has been deleted."
+    }
+    return jsonify(response_body), 200
+
+########################################################################################################################################
+# For the storage of habitats
+@app.route('/habitat', methods=['GET']) #Returns all of the Habitats in a list
+def get_all_habitats():
+    all_habitats = Habitat.query.all()
+    all_habitats = list(map(lambda x: x.serialize(), all_habitats))
+    response_body = {
+        "Habitats": all_habitats
+    }
+    return jsonify(all_habitats), 200
+
+@app.route('/habitat', methods=['POST']) #Adds a new Habitat to the list 
+def add_habitat():
+    habitat_info = request.get_json() 
+    new_habitat= Habitat(name=habitat_info['name'], info=habitat_info['info'], habitat_location=habitat_info['habitat_location'], habitat_supplies=habitat_info['habitat_supplies'], habitat_equipment=habitat_info['habitat_equipment']) 
+    db.session.add(new_habitat) 
+    db.session.commit() 
+    response = Habitat.query.all()
+    response = list(map(lambda x: x.serialize(), response))
+    
+    return jsonify(response), 200 
+
+@app.route('/habitat/<int:id>', methods=['PUT']) #Updates the Habitat information at their ID
+def update_habitat(id):
+    body = request.get_json()
+    to_be_updated = Habitat.query.get(id)
+    if to_be_updated is None:
+        raise APIException('Habitat does not exist', status_code=404)
+    if 'name' in body:
+        to_be_updated.name = body['name']
+        to_be_updated.pet_in_habitat_id = body['pet_in_habitat_id']
+        to_be_updated.info = body['info']
+        to_be_updated.habitat_location = body['habitat_location']
+        to_be_updated.habitat_supplies = body['habitat_supplies']
+        to_be_updated.habitat_equipment = body['habitat_equipment']
+        
+    db.session.commit()
+    to_be_updated = Habitat.query.get(id)
+    to_be_updated = to_be_updated.serialize()
+    response_body = {
+        "msg": "The Habitat has been updated.",
+        "update": to_be_updated
+    }
+    return jsonify(response_body), 200
+
+@app.route('/habitat/<int:id>', methods=['DELETE']) #Deletes a Habitat at the specific ID
+def delete_habitat(id):
+    body = request.get_json()
+    to_be_deleted = Habitat.query.get(id)
+    db.session.delete(to_be_deleted)
+    db.session.commit()
+    response_body = {
+        "msg": "The Habitat has been deleted."
+    }
+    return jsonify(response_body), 200
 
 ########################################################################################################################################
 # For the storage of posts
