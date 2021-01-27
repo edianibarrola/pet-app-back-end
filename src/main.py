@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, Pet
+from models import db, User, Pet, Posts
 
 from flask_jwt_simple import (JWTManager, jwt_required, create_jwt, get_jwt_identity)
 from flask_jwt_extended import (JWTManager, jwt_required, create_access_token,get_jwt_identity)
@@ -74,7 +74,7 @@ def update_user(id):
     if 'email' in body:
         to_be_updated.username = body['username']
         to_be_updated.email = body['email']
-        to_be_updated.password = body['password']
+        # to_be_updated.password = body['password']
     db.session.commit()
     to_be_updated = User.query.get(id)
     to_be_updated = to_be_updated.serialize()
@@ -125,6 +125,8 @@ def logout_user():
     }
     return jsonify(response_body), 200
 
+################################################################################################################################################
+#For the database of pets
 
 @app.route('/pet', methods=['GET']) #Returns all of the pets in a list
 def get_all_pets():
@@ -175,7 +177,69 @@ def update_pet(id):
         "update": to_be_updated
     }
     return jsonify(response_body), 200
-#For the posts
+
+
+########################################################################################################################################
+# For the storage of posts
+@app.route('/posts', methods=['GET']) #Returns all of the pets in a list
+def get_all_posts():
+    all_pets = Posts.query.all()
+    all_pets = list(map(lambda x: x.serialize(), all_pets))
+    response_body = {
+        "Pet Posts": all_pets
+    }
+    return jsonify(all_pets), 200
+
+@app.route('/posts/found', methods=['GET']) #Returns all of the found pets in a list
+def get_found_pets():
+    all_pets = Posts.query.filter_by(status = "found")
+    all_pets = list(map(lambda x: x.serialize(), all_pets))
+    response_body = {
+        "Found Pets": all_pets
+    }
+    return jsonify(all_pets), 200
+
+@app.route('/posts/found', methods=['POST']) #Returns all of the found pets in a list
+def post_found_pets():
+    pet_info = request.get_json() 
+    new_pet= Posts(name=pet_info['name'], pet_type= pet_info['pet_type'], color=pet_info['color'], eye_color=pet_info['eye_color'], last_seen=pet_info['last_seen'], description=pet_info['description'], status=pet_info['status']) 
+    db.session.add(new_pet) 
+    db.session.commit() 
+    response = Posts.query.all()
+    response = list(map(lambda x: x.serialize(), response))
+    
+    return jsonify(response), 200 
+
+@app.route('/posts/lost', methods=['GET']) #Returns all of the lost pets in a list
+def get_lost_pets():
+    all_pets = Posts.query.filter_by(status = "lost")
+    all_pets = list(map(lambda x: x.serialize(), all_pets))
+    response_body = {
+        "Lost Pets": all_pets
+    }
+    return jsonify(all_pets), 200
+
+@app.route('/posts/<int:id>', methods=['DELETE']) #Deletes a post at the specific ID
+def delete_lost_pet(id):
+    body = request.get_json()
+    to_be_deleted = Posts.query.get(id)
+    db.session.delete(to_be_deleted)
+    db.session.commit()
+    response_body = {
+        "msg": "The post has been deleted."
+    }
+    return jsonify(response_body), 200
+
+@app.route('/posts/lost', methods=['POST']) #Returns all of the lost pets in a list
+def post_lost_pets():
+    pet_info = request.get_json() 
+    new_pet= Posts(name=pet_info['name'], pet_type= pet_info['pet_type'], color=pet_info['color'], eye_color=pet_info['eye_color'], last_seen=pet_info['last_seen'], description=pet_info['description'], status=pet_info['status']) 
+    db.session.add(new_pet) 
+    db.session.commit() 
+    response = Posts.query.all()
+    response = list(map(lambda x: x.serialize(), response))
+    
+    return jsonify(response), 200 
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
