@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User, Pet, Posts, Habitat
+from models import db, User, Pet, Posts, Habitat, Calendar
 
 from flask_jwt_simple import (JWTManager, jwt_required, create_jwt, get_jwt_identity)
 from flask_jwt_extended import (JWTManager, jwt_required, create_access_token,get_jwt_identity)
@@ -306,6 +306,64 @@ def post_lost_pets():
     response = list(map(lambda x: x.serialize(), response))
     
     return jsonify(response), 200 
+
+########################################################################################################################################
+# For the storage of calendar
+@app.route('/calendar', methods=['GET']) #Returns all of the calendar appointments in a list
+def get_all_calendar():
+    all_calendar = Calendar.query.all()
+    all_calendar = list(map(lambda x: x.serialize(), all_calendar))
+    response_body = {
+        "Calendar": all_calendar
+    }
+    return jsonify(all_calendar), 200
+
+@app.route('/calendar', methods=['POST']) #Adds a new calendar appointment to the list 
+def add_calendar():
+    calendar_info = request.get_json() 
+    print("CALENDAR INFO", calendar_info)
+    new_calendar= Calendar(notes=calendar_info['notes'], start_date=calendar_info['startDate'], end_date=calendar_info['endDate'], title=calendar_info['title']) 
+    db.session.add(new_calendar) 
+    db.session.commit() 
+    response = Calendar.query.all()
+    response = list(map(lambda x: x.serialize(), response))
+    
+    return jsonify(response), 200 
+
+@app.route('/calendar/<int:id>', methods=['DELETE']) #Deletes a calendar appointment at the specific ID
+def delete_appointment(id):
+    body = request.get_json()
+    to_be_deleted = Calendar.query.get(id)
+    db.session.delete(to_be_deleted)
+    db.session.commit()
+    response_body = {
+        "msg": "The appointment has been deleted."
+    }
+    return jsonify(response_body), 200
+
+@app.route('/calendar/<int:id>', methods=['PUT']) #Updates the appointment information in calendar at their ID
+def update_appointment(id):
+    body = request.get_json()
+    to_be_updated = Calendar.query.get(id)
+    if to_be_updated is None:
+        raise APIException('Calendar does not exist', status_code=404)
+    if 'title' in body:
+        
+        # to_be_updated.habitat_id = body['habitat_id']
+        to_be_updated.notes = body['notes']
+        # to_be_updated.pets = body['pets']
+        to_be_updated.start_date = body['startDate']
+        to_be_updated.end_date = body['endDate']
+        to_be_updated.title = body['title']
+        
+    db.session.commit()
+    to_be_updated = Calendar.query.get(id)
+    to_be_updated = to_be_updated.serialize()
+    response_body = {
+        "msg": "The Calendar has been updated.",
+        "update": to_be_updated
+    }
+    return jsonify(response_body), 200
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
