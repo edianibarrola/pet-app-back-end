@@ -347,9 +347,9 @@ def update_appointment(id):
     to_be_updated = Calendar.query.get(id)
     if to_be_updated is None:
         raise APIException('Calendar does not exist', status_code=404)
-    if 'title' in body:
+    if 'id' in body:
         
-        # to_be_updated.habitat_id = body['habitat_id']
+        to_be_updated.id = body['id']
         to_be_updated.notes = body['notes']
         # to_be_updated.pets = body['pets']
         to_be_updated.start_date = body['startDate']
