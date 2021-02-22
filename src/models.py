@@ -82,6 +82,7 @@ class Posts(db.Model):
     last_seen = db.Column(db.String(100), unique=False, nullable=False)
     description = db.Column(db.String(200), unique=False, nullable=True)
     status = db.Column(db.String(100), unique=False, nullable=False)
+    post_picture = db.Column(db.String(500), unique=False, nullable=True)
 
     def __repr__(self):
         return '<Posts %r>' % self.status
@@ -95,5 +96,6 @@ class Posts(db.Model):
             "eye_color": self.eye_color,
             "last_seen": self.last_seen,
             "description": self.description,
-            "status": self.status
+            "status": self.status,
+            "post_picture": self.post_picture
         }

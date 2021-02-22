@@ -268,7 +268,7 @@ def get_found_pets():
 @app.route('/posts/found', methods=['POST']) #Returns all of the found pets in a list
 def post_found_pets():
     pet_info = request.get_json() 
-    new_pet= Posts(name=pet_info['name'], pet_type= pet_info['pet_type'], color=pet_info['color'], eye_color=pet_info['eye_color'], last_seen=pet_info['last_seen'], description=pet_info['description'], status=pet_info['status']) 
+    new_pet= Posts(name=pet_info['name'], pet_type= pet_info['pet_type'], color=pet_info['color'], eye_color=pet_info['eye_color'], last_seen=pet_info['last_seen'], description=pet_info['description'], status=pet_info['status'],post_picture=pet_info['post_picture']) 
     db.session.add(new_pet) 
     db.session.commit() 
     response = Posts.query.all()
@@ -299,7 +299,7 @@ def delete_lost_pet(id):
 @app.route('/posts/lost', methods=['POST']) #Returns all of the lost pets in a list
 def post_lost_pets():
     pet_info = request.get_json() 
-    new_pet= Posts(name=pet_info['name'], pet_type= pet_info['pet_type'], color=pet_info['color'], eye_color=pet_info['eye_color'], last_seen=pet_info['last_seen'], description=pet_info['description'], status=pet_info['status']) 
+    new_pet= Posts(name=pet_info['name'], pet_type= pet_info['pet_type'], color=pet_info['color'], eye_color=pet_info['eye_color'], last_seen=pet_info['last_seen'], description=pet_info['description'], status=pet_info['status'],post_picture=pet_info['post_picture']) 
     db.session.add(new_pet) 
     db.session.commit() 
     response = Posts.query.all()
