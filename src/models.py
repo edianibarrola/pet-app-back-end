@@ -72,6 +72,33 @@ class Habitat(db.Model):
             "habitat_equipment": self.habitat_equipment,
             
             }
+
+class Calendar(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    all_day = db.Column(db.Boolean, unique=False, default=False, nullable=True )
+    habitat_id = db.Column(db.String(80), unique=False, nullable=True)
+    notes = db.Column(db.String(250), unique=False, nullable=True)
+    pets = db.Column(db.String(100), unique=False, nullable=True)
+    start_date = db.Column(db.String, unique=False, nullable=False)
+    end_date = db.Column(db.String, unique=False, nullable=False)
+    title = db.Column(db.String(100), unique=False, nullable=False)
+    
+    
+    
+    def __repr__(self):
+        return '<Calendar %r>' % self.name
+    
+    def serialize(self):
+        return {
+            "id": self.id,
+            "allDay": self.all_day,
+            "habitatId": self.habitat_id,
+            "notes": self.notes,
+            "pets": self.pets,
+            "startDate": self.start_date,
+            "endDate": self.end_date,
+            "title": self.title
+            }
     
 class Posts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
