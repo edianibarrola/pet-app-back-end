@@ -79,8 +79,8 @@ class Calendar(db.Model):
     habitat_id = db.Column(db.String(80), unique=False, nullable=True)
     notes = db.Column(db.String(250), unique=False, nullable=True)
     pets = db.Column(db.String(100), unique=False, nullable=True)
-    start_date = db.Column(db.String, unique=False, nullable=False)
-    end_date = db.Column(db.String, unique=False, nullable=False)
+    start_date = db.Column(db.String(100), unique=False, nullable=False)
+    end_date = db.Column(db.String(100), unique=False, nullable=False)
     title = db.Column(db.String(100), unique=False, nullable=False)
     
     
